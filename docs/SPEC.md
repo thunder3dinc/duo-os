@@ -7,7 +7,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Duo OS versions track Apple's releases: the current base is the **27.3** line (build 24C5037i). Version **27.3.0.1** is also a Duo OS version.
 - Duo OS is made by **reverse engineering Apple's own implementations** — the update flow and catalogue, build and kernel pieces, Settings, windowing, Assistive Access, Safari, StandBy, Control Center — and building against that map, so it behaves as if made by Apple. Behaviour is checked side-by-side against stock; any difference is a bug.
 - The build runs on a Mac as an **Xcode build run by Swift Build**, with external tools (IPSW, kernelcache, OTA) as steps inside the build.
-- Delivery is an update that appears in **Settings → General → Software Update** (Duo OS) or an **installer app** (Duo OS+ on Mac).
+- Delivery is an update that appears in **Settings → General → Software Update** (Duo OS) or an **installer app** (Duo OS on Mac).
 - Upgrading is **never forced**: the user picks STAY or upgrade.
 
 ## Duo OS (iPad / iPhone Duo)
@@ -28,7 +28,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Apple Pencil on iPad Air M1: Pencil 2, Pencil USB-C, Pencil Pro.
 - Devices appear in Xcode as iOS devices.
 
-## Duo OS+ (Mac)
+## Duo OS (Mac)
 
 - For the Mac mini; a **modified version of macOS 27 or later** with the iPhone Duo design.
 - **StandBy** replaces screensavers; a cursor flick exits StandBy to the unlock screen.
@@ -40,7 +40,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Function keys of any keyboard work (Mac or Windows layout, wired or Bluetooth).
 - Xcode for Mac is supported — on the Mac only.
 - Migration Assistant compatible; erase-install gives a clean Duo OS-only setup.
-- Anyone can customize Duo OS+ how they want. Light and dark mode.
+- Anyone can customize Duo OS how they want. Light and dark mode.
 
 ## Duo OS CarPlayOS (future — not in development yet)
 
