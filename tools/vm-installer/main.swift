@@ -22,6 +22,11 @@
 // display, guest memory is clamped to the host's RAM, the sound
 // device gets an output stream, and the UTM config.plist is
 // written only after a successful install.
+// Alignment pass (2026-11-20, at Alan's instruction to match the
+// reference exactly): the sound device now carries input + output
+// streams, and the entropy and memory-balloon devices from
+// Apple's sample configuration were added — the VM configuration
+// now matches Apple's reference macOS VM setup item for item.
 
 import Foundation
 import Virtualization
@@ -219,12 +224,20 @@ do {
 
 // MARK: - VM configuration
 
-// Guest memory: the 8 GB target, clamped so the guest never takes
-// more than half the host's RAM (an 8 GB guest cannot start on an
-// 8 GB host). The host size is printed for the build log.
+// Guest memory: on small hosts (<= 8 GB) the guest gets host - 2 GB.
+// The earlier half-host clamp pinned the guest at 4 GB on the 8 GB
+// build Mac, and four installs (this tool x3, UTM x1) all died late
+// in Apple's restore phase with 4 GB guests (2026-11-20). On larger
+// hosts the 8 GB target with the half-host clamp applies. The host
+// size is printed for the build log.
 let hostMemoryBytes = ProcessInfo.processInfo.physicalMemory
-let guestMemoryBytes = min(memorySizeGB * 1024 * 1024 * 1024,
+let guestMemoryBytes: UInt64
+if hostMemoryBytes <= 8 * 1024 * 1024 * 1024 {
+    guestMemoryBytes = hostMemoryBytes - 2 * 1024 * 1024 * 1024
+} else {
+    guestMemoryBytes = min(memorySizeGB * 1024 * 1024 * 1024,
                            max(4 * 1024 * 1024 * 1024, hostMemoryBytes / 2))
+}
 print(String(format: "Host RAM: %.0f GB - guest memory: %.0f GB",
              Double(hostMemoryBytes) / 1_073_741_824,
              Double(guestMemoryBytes) / 1_073_741_824))
@@ -246,10 +259,13 @@ graphics.displays = [VZMacGraphicsDisplayConfiguration(
     widthInPixels: 1920, heightInPixels: 1080, pixelsPerInch: 200)]
 config.graphicsDevices = [graphics]
 let sound = VZVirtioSoundDeviceConfiguration()
-sound.streams = [VZVirtioSoundDeviceOutputStreamConfiguration()]
+sound.streams = [VZVirtioSoundDeviceInputStreamConfiguration(),
+                 VZVirtioSoundDeviceOutputStreamConfiguration()]
 config.audioDevices = [sound]
 config.keyboards = [VZUSBKeyboardConfiguration()]
 config.pointingDevices = [VZUSBScreenCoordinatePointingDeviceConfiguration()]
+config.entropyDevices = [VZVirtioEntropyDeviceConfiguration()]
+config.memoryBalloonDevices = [VZVirtioTraditionalMemoryBalloonDeviceConfiguration()]
 do { try config.validate() } catch { fail("config validation: \(error)") }
 
 // MARK: - UTM config.plist

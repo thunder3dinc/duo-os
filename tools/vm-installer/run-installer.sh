@@ -9,9 +9,9 @@ set -e
 cd "$(dirname "$0")/../.."
 BIN="build/vm-installer/duo-os-vm-installer"
 OUT="$HOME/Library/Containers/com.utmapp.UTM/Data/Documents/Duo OS.utm"
-if [ ! -x "$BIN" ]; then
-  ./tools/build_vm_installer.sh
-fi
+# Always rebuild (a few seconds) so source fixes actually land —
+# building only when the binary is missing shipped a stale binary once.
+sh ./tools/build_vm_installer.sh
 if [ -e "$OUT" ]; then
   echo "error: $OUT already exists - refusing to overwrite" >&2
   exit 1
