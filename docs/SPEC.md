@@ -35,11 +35,10 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Target hardware it was first planned around: the Mac mini (M6, 2TB, 24GB RAM, coming 2027) — but shipping Duo OS is not limited to the Mac mini.
 - **Release date: May 1, 2027.** Duo OS is not ready before that date; the work is paced for quality to that date.
 - **StandBy** replaces screensavers; a cursor flick exits StandBy to the unlock screen.
-- **Control Center is a combination** of the macOS Control Center and the iOS 27 Control Center.
-- The **iOS/iPadOS App Library** is in; the macOS App Library is discontinued. Launchpad returns.
-- **Stage Manager** from macOS and iPadOS; Duo Split View on Mac.
+- **Control Center is the user's pick** (Alan, 2026-11-19 night — supersedes the earlier "combines both" wording): a **System Settings option** chooses between the **macOS Control Center** and the **full-screen Control Center**.
+- **App Library vs Launchpad is also the user's pick** (Alan, 2026-11-19 night): a **System Settings option** chooses between the **iOS/iPadOS App Library** and the **old macOS Launchpad from macOS 26 or earlier**. The App Library is brought to the Mac either way; which launcher is active is the user's choice.
+- **Stage Manager** from macOS and iPadOS; **iPhone Duo Split View** on Mac; **Slide Over is included on the Mac too** (Alan, 2026-11-19 night — supersedes the earlier "no Slide Over on Mac" line).
 - Finder yes; iOS/iPadOS Files app no.
-- StandBy replaces screensavers. No Slide Over (iPad-only).
 - Function keys of any keyboard work (Mac or Windows layout, wired or Bluetooth).
 - Xcode for Mac is supported — on the Mac only.
 - Migration Assistant compatible; erase-install gives a clean Duo OS-only setup.

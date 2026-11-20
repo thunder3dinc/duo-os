@@ -24,10 +24,12 @@ Milestones:
    against stock behaviour, the recorded Duo OS method):
    - StandBy replaces screensavers; flick the cursor to dismiss it and
      unlock.
-   - Control Center combining the macOS and iOS 27 Control Centers.
-   - iOS/iPadOS App Library in place of the macOS App Library;
-     Launchpad back.
-   - Duo Split View + Stage Manager (macOS and iPadOS behaviours).
+   - Control Center as a System Settings pick: the macOS Control
+     Center or the full-screen Control Center.
+   - Launcher as a System Settings pick: the iOS/iPadOS App Library
+     or the old macOS Launchpad (macOS 26 or earlier).
+   - Duo Split View + Stage Manager (macOS and iPadOS behaviours)
+     + Slide Over on the Mac too.
    - Finder stays; no iOS/iPadOS Files app.
 4. **Package** — the finished guest ships as a VM image/bundle anyone
    can run in the VM of their choice.
