@@ -151,6 +151,51 @@ config.keyboards = [VZUSBKeyboardConfiguration()]
 config.pointingDevices = [VZUSBScreenCoordinatePointingDeviceConfiguration()]
 do { try config.validate() } catch { fail("config validation: \(error)") }
 
+// MARK: - UTM config.plist
+// Make the bundle openable by UTM. UTM keeps its Apple-Virtualization
+// VMs as .utm bundles whose Data folder holds Disk.img,
+// AuxiliaryStorage, HardwareModel and MachineIdentifier — the files
+// written above — plus this config.plist at the bundle root.
+// (--out should therefore name a .utm bundle, e.g. "Duo OS.utm",
+// inside the folder UTM keeps its virtual machines in.)
+// First cut: if UTM refuses this config, adjust from its parser errors.
+let utmConfig: [String: Any] = [
+    "Backend": "Apple",
+    "ConfigurationVersion": 4,
+    "Information": ["Name": "Duo OS", "Icon": ""],
+    "System": [
+        "Architecture": "arm64",
+        "CPUCount": cpuCount,
+        "MemorySize": Int(memorySizeGB * 1024 * 1024 * 1024),
+        "Boot": ["OperatingSystem": "macOS"],
+        "MacPlatform": [
+            "AuxiliaryStoragePath": "AuxiliaryStorage",
+            "HardwareModelPath": "HardwareModel",
+            "MachineIdentifierPath": "MachineIdentifier",
+        ],
+    ],
+    "Drives": [[
+        "Identifier": UUID().uuidString,
+        "ImageName": "Disk.img",
+        "ImageType": "Disk",
+        "Interface": "VirtIO",
+        "ReadOnly": false,
+    ]],
+    "Networks": [["Mode": "Shared", "Interface": "VirtIO"]],
+    "Displays": [[
+        "WidthInPixels": 1920,
+        "HeightInPixels": 1080,
+        "PixelsPerInch": 200,
+        "DynamicResolution": true,
+    ]],
+]
+do {
+    let data = try PropertyListSerialization.data(
+        fromPropertyList: utmConfig, format: .xml, options: 0)
+    try data.write(to: bundleURL.appendingPathComponent("config.plist"))
+    print("Wrote UTM config.plist")
+} catch { fail("writing config.plist: \(error)") }
+
 // MARK: - Install
 
 let vm = VZVirtualMachine(configuration: config)
@@ -160,10 +205,14 @@ let progress = installer.progress
 let observation = progress.observe(\.fractionCompleted, options: [.new]) { p, _ in
     print(String(format: "  %.0f%%", p.fractionCompleted * 100))
 }
-installer.install { error in
-    if let error { fail("install failed: \(error)") }
-    print("Install complete. Guest bundle saved at: \(bundlePath)")
-    exit(0)
+installer.install { result in
+    switch result {
+    case .success:
+        print("Install complete. Guest bundle saved at: \(bundlePath)")
+        exit(0)
+    case .failure(let error):
+        fail("install failed: \(error)")
+    }
 }
 _ = observation
 dispatchMain()

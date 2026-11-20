@@ -33,9 +33,20 @@ supported operation.
 
 ## Status
 
-- First cut of `main.swift` written 2026-11-19. It has **not** been
-  compiled yet: the next step is wiring it into the Duo OS Xcode
-  project on the build Mac (with the Virtualization entitlement) and
-  running the build there.
+- 2026-11-19: first cut of `main.swift` written; wired into the Duo OS
+  Xcode project on the build Mac as a second external-build target
+  named **vm-installer** (Makefile target `vm-installer`, script
+  `tools/build_vm_installer.sh`, Virtualization entitlement in
+  `tools/vm-installer/vm-installer.entitlements`).
+- The tool also writes a UTM `config.plist`, so the finished bundle is
+  a `.utm` package UTM can open and boot.
+- **Build Succeeded in Xcode on the build Mac, 2026-11-19 21:37 EST**
+  (one compile error found and fixed on the way: the macOS 27 SDK's
+  `VZMacOSInstaller` completion handler returns a `Result`, not an
+  optional error). Binary verified on disk:
+  `Downloads/duo os/build/vm-installer/duo-os-vm-installer`.
+- Next step: run the tool to perform the actual guest install. That
+  needs the freed disk space (Trash emptied on the Mac) for the
+  ~15 GB restore-image download and the guest disk.
 - Paced to the May 1, 2027 release — this is groundwork, done
   carefully, not a rush job.
