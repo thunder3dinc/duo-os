@@ -21,7 +21,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Main files app: Finder, Files, Dropbox or Google Drive — ships with Finder; Files is not preinstalled and installs when chosen.
 - Apple App Store is the principal store; a third-party store can replace it.
 - Light and dark mode; wallpapers: stock, your own, and the ones you already had.
-- Adaptive Power on all devices. Safari: no tab limit, Private and non-Private.
+- Adaptive Power on all devices. Safari is NOT in Duo OS (see the browser rule below) — the old "Safari: no tab limit" plan is superseded (Alan, 2026-11-20).
 - Always On Display and jailbreak-style tweaks; everything the iOS, iPadOS and old iPod OS jailbreaks have (the old iPod OS itself is not included).
 - CarPlay and CarPlay Ultra compatible.
 - Runs all Mac, iPad and iPhone apps as if made for all three; also APK-compatible.
@@ -45,7 +45,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - **Time Machine** fully supported: Duo OS backs up to Time Machine, restores from Time Machine backups, and can migrate from one, like a normal Mac (Alan, 2026-11-20).
 - **All Apple utility apps** are included and working — the full Utilities set: Disk Utility, Terminal, Activity Monitor, Console, System Information, Keychain Access, Migration Assistant, Time Machine, and the rest (Alan, 2026-11-20).
 - **Apple App Store** works — sign in, download and update apps normally (Alan, 2026-11-20).
-- **Built-in browser is Google Chrome — no Safari.** Chrome is the browser built into Duo OS (Mac); Safari is not included (Alan, 2026-11-20).
+- **Built-in browser is Google Chrome — no Safari.** Chrome is the browser built into Duo OS on every platform — iPad, Mac and iPhone (it is the same Duo OS on all three); Safari is not included anywhere in Duo OS (Alan, 2026-11-20).
 - Anyone can customize Duo OS how they want. Light and dark mode.
 
 ## Duo OS CarPlayOS (future — not in development yet)
