@@ -42,6 +42,8 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Function keys of any keyboard work (Mac or Windows layout, wired or Bluetooth).
 - Xcode for Mac is supported — on the Mac only.
 - Migration Assistant compatible; erase-install gives a clean Duo OS-only setup. The Duo OS machine/guest **presents itself as a real Mac**, so Migration Assistant can transfer everything from another Mac into it (Alan, 2026-11-20). For the VM this is literal: the guest is real macOS on Apple's virtual Mac hardware from the restore image, so its setup offers the normal Mac-to-Mac transfer (source: his MacBook Air M3).
+- **Time Machine** fully supported: Duo OS backs up to Time Machine, restores from Time Machine backups, and can migrate from one, like a normal Mac (Alan, 2026-11-20).
+- **All Apple utility apps** are included and working — the full Utilities set: Disk Utility, Terminal, Activity Monitor, Console, System Information, Keychain Access, Migration Assistant, Time Machine, and the rest (Alan, 2026-11-20).
 - Anyone can customize Duo OS how they want. Light and dark mode.
 
 ## Duo OS CarPlayOS (future — not in development yet)
