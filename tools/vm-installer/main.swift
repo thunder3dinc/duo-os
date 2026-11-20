@@ -12,7 +12,16 @@
 //   duo-os-vm-installer --ipsw <path-to-restore.ipsw> --out <bundle-dir>
 //   duo-os-vm-installer --download-latest --out <bundle-dir>
 //
-// NOT yet compiled or run — see README.md in this folder.
+// Status: builds clean (2026-11-19). First run 2026-11-20 crashed in
+// VZMacOSRestoreImage.load — fetchLatestSupported returns a remote
+// URL and the image was never downloaded; fixed the same day by
+// downloading to ~/Library/Caches/duo-os-vm-installer/ first.
+// Second run (2026-11-20) failed config validation: "No displays
+// are configured" — the graphics device had no display. Fixed the
+// same day: the Mac graphics device now carries a 1920x1080
+// display, guest memory is clamped to the host's RAM, the sound
+// device gets an output stream, and the UTM config.plist is
+// written only after a successful install.
 
 import Foundation
 import Virtualization
@@ -24,6 +33,49 @@ let memorySizeGB: UInt64 = 8
 func fail(_ message: String) -> Never {
     FileHandle.standardError.write("error: \(message)\n".data(using: .utf8)!)
     exit(1)
+}
+
+// Downloads the restore image to a local file, printing coarse
+// progress so the Xcode build log stays readable.
+final class RestoreImageDownloader: NSObject, URLSessionDownloadDelegate {
+    let destination: URL
+    var finished = false
+    var error: Error?
+    private var lastPrintedPercent = -5.0
+
+    init(destination: URL) { self.destination = destination }
+
+    func urlSession(_ session: URLSession,
+                    downloadTask: URLSessionDownloadTask,
+                    didWriteData bytesWritten: Int64,
+                    totalBytesWritten: Int64,
+                    totalBytesExpectedToWrite: Int64) {
+        guard totalBytesExpectedToWrite > 0 else { return }
+        let pct = Double(totalBytesWritten) /
+                  Double(totalBytesExpectedToWrite) * 100
+        if pct - lastPrintedPercent >= 5 {
+            lastPrintedPercent = pct
+            print(String(format: "  download %.0f%%", pct))
+        }
+    }
+
+    func urlSession(_ session: URLSession,
+                    downloadTask: URLSessionDownloadTask,
+                    didFinishDownloadingTo location: URL) {
+        do {
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+            try FileManager.default.moveItem(at: location, to: destination)
+        } catch { self.error = error }
+    }
+
+    func urlSession(_ session: URLSession,
+                    task: URLSessionTask,
+                    didCompleteWithError error: Error?) {
+        if let error { self.error = error }
+        finished = true
+    }
 }
 
 // MARK: - Arguments
@@ -68,26 +120,60 @@ let machineIDURL = dataDir.appendingPathComponent("MachineIdentifier")
 
 // MARK: - Restore image
 
-let semaphore = DispatchSemaphore(value: 0)
-var restoreImageURL: URL?
+var ipswURL: URL?
 
 if let p = ipswPath {
-    restoreImageURL = URL(fileURLWithPath: p)
-    semaphore.signal()
+    ipswURL = URL(fileURLWithPath: p)
 } else {
     // Apple's feed of the latest macOS restore image for VMs.
+    // NOTE: fetchLatestSupported returns a REMOTE https URL — the image
+    // must be downloaded to a local file before load(from:) will take
+    // it (load validates that the URL is a file URL and throws
+    // NSInvalidArgumentException otherwise — crash found 2026-11-20).
+    let semaphore = DispatchSemaphore(value: 0)
+    var remoteURL: URL?
     VZMacOSRestoreImage.fetchLatestSupported { result in
         switch result {
         case .success(let image):
-            restoreImageURL = image.url
+            remoteURL = image.url
         case .failure(let e):
             fail("could not fetch latest restore image: \(e)")
         }
         semaphore.signal()
     }
+    semaphore.wait()
+    guard let remote = remoteURL else { fail("no restore image") }
+
+    let cacheDir = fm.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Caches/duo-os-vm-installer")
+    do {
+        try fm.createDirectory(at: cacheDir, withIntermediateDirectories: true)
+    } catch { fail("could not create cache folder: \(error)") }
+    let localURL = cacheDir.appendingPathComponent(remote.lastPathComponent)
+
+    if let attrs = try? fm.attributesOfItem(atPath: localURL.path),
+       let size = attrs[.size] as? UInt64, size > 1_000_000_000 {
+        print("Using cached restore image: \(localURL.lastPathComponent)")
+        ipswURL = localURL
+    } else {
+        print("Downloading restore image: \(remote.lastPathComponent)")
+        let downloader = RestoreImageDownloader(destination: localURL)
+        let session = URLSession(configuration: .default,
+                                 delegate: downloader, delegateQueue: nil)
+        let task = session.downloadTask(with: remote)
+        task.resume()
+        while !downloader.finished {
+            RunLoop.current.run(mode: .default,
+                                before: Date(timeIntervalSinceNow: 0.5))
+        }
+        session.invalidateAndCancel()
+        if let e = downloader.error {
+            fail("restore image download failed: \(e)")
+        }
+        ipswURL = localURL
+    }
 }
-semaphore.wait()
-guard let ipswURL = restoreImageURL else { fail("no restore image") }
+guard let ipswURL else { fail("no restore image") }
 print("Restore image: \(ipswURL.lastPathComponent)")
 
 // MARK: - Platform configuration from the restore image
@@ -133,11 +219,21 @@ do {
 
 // MARK: - VM configuration
 
+// Guest memory: the 8 GB target, clamped so the guest never takes
+// more than half the host's RAM (an 8 GB guest cannot start on an
+// 8 GB host). The host size is printed for the build log.
+let hostMemoryBytes = ProcessInfo.processInfo.physicalMemory
+let guestMemoryBytes = min(memorySizeGB * 1024 * 1024 * 1024,
+                           max(4 * 1024 * 1024 * 1024, hostMemoryBytes / 2))
+print(String(format: "Host RAM: %.0f GB - guest memory: %.0f GB",
+             Double(hostMemoryBytes) / 1_073_741_824,
+             Double(guestMemoryBytes) / 1_073_741_824))
+
 let config = VZVirtualMachineConfiguration()
 config.platform = platform
 config.bootLoader = VZMacOSBootLoader()
 config.cpuCount = cpuCount
-config.memorySize = memorySizeGB * 1024 * 1024 * 1024
+config.memorySize = guestMemoryBytes
 do {
     let attachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: false)
     config.storageDevices = [VZVirtioBlockDeviceConfiguration(attachment: attachment)]
@@ -145,8 +241,13 @@ do {
 let net = VZVirtioNetworkDeviceConfiguration()
 net.attachment = VZNATNetworkDeviceAttachment()
 config.networkDevices = [net]
-config.graphicsDevices = [VZMacGraphicsDeviceConfiguration()]
-config.audioDevices = [VZVirtioSoundDeviceConfiguration()]
+let graphics = VZMacGraphicsDeviceConfiguration()
+graphics.displays = [VZMacGraphicsDisplayConfiguration(
+    widthInPixels: 1920, heightInPixels: 1080, pixelsPerInch: 200)]
+config.graphicsDevices = [graphics]
+let sound = VZVirtioSoundDeviceConfiguration()
+sound.streams = [VZVirtioSoundDeviceOutputStreamConfiguration()]
+config.audioDevices = [sound]
 config.keyboards = [VZUSBKeyboardConfiguration()]
 config.pointingDevices = [VZUSBScreenCoordinatePointingDeviceConfiguration()]
 do { try config.validate() } catch { fail("config validation: \(error)") }
@@ -166,7 +267,7 @@ let utmConfig: [String: Any] = [
     "System": [
         "Architecture": "arm64",
         "CPUCount": cpuCount,
-        "MemorySize": Int(memorySizeGB * 1024 * 1024 * 1024),
+        "MemorySize": Int(guestMemoryBytes),
         "Boot": ["OperatingSystem": "macOS"],
         "MacPlatform": [
             "AuxiliaryStoragePath": "AuxiliaryStorage",
@@ -189,12 +290,9 @@ let utmConfig: [String: Any] = [
         "DynamicResolution": true,
     ]],
 ]
-do {
-    let data = try PropertyListSerialization.data(
-        fromPropertyList: utmConfig, format: .xml, options: 0)
-    try data.write(to: bundleURL.appendingPathComponent("config.plist"))
-    print("Wrote UTM config.plist")
-} catch { fail("writing config.plist: \(error)") }
+// The config.plist itself is written only after the install
+// succeeds (see the install completion handler), so a failed
+// install never leaves a presentable-but-broken VM in UTM.
 
 // MARK: - Install
 
@@ -208,6 +306,12 @@ let observation = progress.observe(\.fractionCompleted, options: [.new]) { p, _ 
 installer.install { result in
     switch result {
     case .success:
+        do {
+            let data = try PropertyListSerialization.data(
+                fromPropertyList: utmConfig, format: .xml, options: 0)
+            try data.write(to: bundleURL.appendingPathComponent("config.plist"))
+            print("Wrote UTM config.plist")
+        } catch { fail("writing config.plist: \(error)") }
         print("Install complete. Guest bundle saved at: \(bundlePath)")
         exit(0)
     case .failure(let error):
