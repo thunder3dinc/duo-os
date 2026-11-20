@@ -31,7 +31,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 ## Duo OS (Mac)
 
 - A **second Mac-style OS**: macOS **27.3 modified — but still macOS 27.3** — with the iPhone Duo design. It is **not** a macOS replacement.
-- Duo OS for Mac runs as a **VM OS**: we test it in **VirtualBox**, and once it is finished and ready to ship, **anyone can run Duo OS on any VM they want**, on any Mac running **macOS 27.3 or later**.
+- Duo OS for Mac runs as a **VM OS**: we test the macOS guest in **UTM** (Alan's decision 2026-11-19 — VirtualBox on Apple Silicon has no Mac OS X guest type), and once it is finished and ready to ship, **anyone can run Duo OS on any VM they want**, on any Mac running **macOS 27.3 or later**.
 - Target hardware it was first planned around: the Mac mini (M6, 2TB, 24GB RAM, coming 2027) — but shipping Duo OS is not limited to the Mac mini.
 - **Release date: May 1, 2027.** Duo OS is not ready before that date; the work is paced for quality to that date.
 - **StandBy** replaces screensavers; a cursor flick exits StandBy to the unlock screen.
