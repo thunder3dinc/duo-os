@@ -34,7 +34,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Duo OS for Mac runs as a **VM OS**: we test the macOS guest in **UTM** (Alan's decision 2026-11-19 — VirtualBox on Apple Silicon has no Mac OS X guest type), and once it is finished and ready to ship, **anyone can run Duo OS on any VM they want**, on any Mac running **macOS 27.3 or later**.
 - Target hardware it was first planned around: the Mac mini (M6, 2TB, 24GB RAM, coming 2027) — but shipping Duo OS is not limited to the Mac mini.
 - **Release date: May 1, 2027.** Duo OS is not ready before that date; the work is paced for quality to that date.
-- **StandBy** replaces screensavers; a cursor flick exits StandBy to the unlock screen.
+- **StandBy** replaces screensavers; a cursor flick exits StandBy to the unlock screen. The StandBy Duo OS uses is **the one from Apple's HomeView — not the iOS/iPhone StandBy** (Alan, 2026-11-20).
 - **Control Center is the user's pick** (Alan, 2026-11-19 night — supersedes the earlier "combines both" wording): a **System Settings option** chooses between the **macOS Control Center** and the **full-screen Control Center**.
 - **App Library vs Launchpad is also the user's pick** (Alan, 2026-11-19 night): a **System Settings option** chooses between the **iOS/iPadOS App Library** and the **old macOS Launchpad from macOS 26 or earlier**. The App Library is brought to the Mac either way; which launcher is active is the user's choice.
 - **Stage Manager** from macOS and iPadOS; **iPhone Duo Split View** on Mac; **Slide Over is included on the Mac too** (Alan, 2026-11-19 night — supersedes the earlier "no Slide Over on Mac" line).
