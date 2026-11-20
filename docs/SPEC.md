@@ -7,7 +7,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - Duo OS versions track Apple's releases: the current base is the **27.3** line (build 24C5037i). Version **27.3.0.1** is also a Duo OS version.
 - Duo OS is made by **reverse engineering Apple's own implementations** — the update flow and catalogue, build and kernel pieces, Settings, windowing, Assistive Access, Safari, StandBy, Control Center — and building against that map, so it behaves as if made by Apple. Behaviour is checked side-by-side against stock; any difference is a bug.
 - The build runs on a Mac as an **Xcode build run by Swift Build**, with external tools (IPSW, kernelcache, OTA) as steps inside the build.
-- Delivery is an update that appears in **Settings → General → Software Update** (Duo OS) or an **installer app** (Duo OS on Mac).
+- Delivery is an update that appears in **Settings → General → Software Update** (Duo OS on iPad / iPhone Duo) or a **VM image/bundle** (Duo OS on Mac — it runs in a VM, see below).
 - Upgrading is **never forced**: the user picks STAY or upgrade.
 
 ## Duo OS (iPad / iPhone Duo)
@@ -30,7 +30,10 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 
 ## Duo OS (Mac)
 
-- For the Mac mini; a **modified version of macOS 27 or later** with the iPhone Duo design.
+- A **second Mac-style OS**: macOS **27.3 modified — but still macOS 27.3** — with the iPhone Duo design. It is **not** a macOS replacement.
+- Duo OS for Mac runs as a **VM OS**: we test it in **VirtualBox**, and once it is finished and ready to ship, **anyone can run Duo OS on any VM they want**, on any Mac running **macOS 27.3 or later**.
+- Target hardware it was first planned around: the Mac mini (M6, 2TB, 24GB RAM, coming 2027) — but shipping Duo OS is not limited to the Mac mini.
+- **Release date: May 1, 2027.** Duo OS is not ready before that date; the work is paced for quality to that date.
 - **StandBy** replaces screensavers; a cursor flick exits StandBy to the unlock screen.
 - **Control Center is a combination** of the macOS Control Center and the iOS 27 Control Center.
 - The **iOS/iPadOS App Library** is in; the macOS App Library is discontinued. Launchpad returns.
