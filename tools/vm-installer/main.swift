@@ -224,16 +224,15 @@ do {
 
 // MARK: - VM configuration
 
-// Guest memory: on small hosts (<= 8 GB) the guest gets host - 2 GB.
-// The earlier half-host clamp pinned the guest at 4 GB on the 8 GB
-// build Mac, and four installs (this tool x3, UTM x1) all died late
-// in Apple's restore phase with 4 GB guests (2026-11-20). On larger
-// hosts the 8 GB target with the half-host clamp applies. The host
-// size is printed for the build log.
+// Guest memory: on small hosts (<= 8 GB) the guest gets 4 GB —
+// Alan's explicit pick for the in-guest-upgrade attempt
+// (2026-11-20), the same size UTM used for its own test VM.
+// On larger hosts the 8 GB target with the half-host clamp
+// applies. The host size is printed for the build log.
 let hostMemoryBytes = ProcessInfo.processInfo.physicalMemory
 let guestMemoryBytes: UInt64
 if hostMemoryBytes <= 8 * 1024 * 1024 * 1024 {
-    guestMemoryBytes = hostMemoryBytes - 2 * 1024 * 1024 * 1024
+    guestMemoryBytes = 4 * 1024 * 1024 * 1024
 } else {
     guestMemoryBytes = min(memorySizeGB * 1024 * 1024 * 1024,
                            max(4 * 1024 * 1024 * 1024, hostMemoryBytes / 2))
