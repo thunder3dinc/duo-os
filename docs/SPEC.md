@@ -45,6 +45,7 @@ This is the public summary of the Duo OS specification. Duo OS is built exactly 
 - **Time Machine** fully supported: Duo OS backs up to Time Machine, restores from Time Machine backups, and can migrate from one, like a normal Mac (Alan, 2026-11-20).
 - **All Apple utility apps** are included and working — the full Utilities set: Disk Utility, Terminal, Activity Monitor, Console, System Information, Keychain Access, Migration Assistant, Time Machine, and the rest (Alan, 2026-11-20).
 - **Apple App Store** works — sign in, download and update apps normally (Alan, 2026-11-20).
+- **Apple Intelligence** is in Duo OS — the Apple Intelligence models and everything Apple Intelligence, included and working (Alan, 2026-11-20).
 - **Built-in browser on Mac is Google Chrome — no Safari on Mac.** Chrome is the browser built into Duo OS for Mac; Safari is not included on the Mac version. On iPad and iPhone, Duo OS keeps Safari (Alan, 2026-11-20).
 - Anyone can customize Duo OS how they want. Light and dark mode.
 
