@@ -224,17 +224,18 @@ do {
 
 // MARK: - VM configuration
 
-// Guest memory: on small hosts (<= 8 GB) the guest gets 2 GB —
-// Alan's explicit pick (2026-11-20 night) after 4 GB and 6 GB
-// guests both died at the restore wall (AMRestore error 100);
-// a smaller guest leaves the host more RAM for its own restore
-// services during the install.
+// Guest memory: on small hosts (<= 8 GB) the guest gets 4 GB.
+// Sizes tested 2026-11-20: 2 GB (Alan's pick) died at the door —
+// MobileRestore 4014, the guest never left DFU for Recovery;
+// 4 GB and 6 GB both reach the restore transfer and die at
+// ~78% with AMRestore error 100 (Apple's beta restore channel
+// drops). 4 GB gets furthest, so it is the standing size.
 // On larger hosts the 8 GB target with the half-host clamp
 // applies. The host size is printed for the build log.
 let hostMemoryBytes = ProcessInfo.processInfo.physicalMemory
 let guestMemoryBytes: UInt64
 if hostMemoryBytes <= 8 * 1024 * 1024 * 1024 {
-    guestMemoryBytes = 2 * 1024 * 1024 * 1024
+    guestMemoryBytes = 4 * 1024 * 1024 * 1024
 } else {
     guestMemoryBytes = min(memorySizeGB * 1024 * 1024 * 1024,
                            max(4 * 1024 * 1024 * 1024, hostMemoryBytes / 2))
